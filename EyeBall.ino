@@ -125,7 +125,6 @@ void drawEyeball()
       break;
   }
 
-  
 }
 
 void drawBackground()
