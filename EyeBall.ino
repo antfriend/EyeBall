@@ -3,34 +3,10 @@
 
 #include <Arduboy2.h>
 #include "Images.h"
-
 Arduboy2 arduboy;
 
 const unsigned char background[] PROGMEM  = {
     0xf1, 0x11, 0x11, 0x11, 0x1f, 0x11, 0x11, 0x11, 
-};
-const unsigned char player[] PROGMEM  = {
-0xe0, 0xf8, 0xfc, 0x7e, 0x1e, 0x1f, 0xf, 0xf, 0xf, 0x3f, 0x3f, 0xfe, 0xfe, 0xfc, 0xf8, 0xe0, 0x7, 0x1f, 0x3f, 0x7e, 0x78, 0xf8, 0xf0, 0xf0, 0xf8, 0xf8, 0xfe, 0x7f, 0x7f, 0x3f, 0x1f, 0x7, 
-};
-
-const unsigned char eyeLeft2[] PROGMEM  = {
-0xe0, 0xf8, 0x3c, 0x1e, 0xe, 0xf, 0xf, 0x1f, 0x3f, 0xff, 0xff, 0xfe, 0xfe, 0xfc, 0xf8, 0xe0, 0x7, 0x1f, 0x3c, 0x78, 0x70, 0xf0, 0xf0, 0xf8, 0xfc, 0xff, 0xff, 0x7f, 0x7f, 0x3f, 0x1f, 0x7, 
-};
-
-const unsigned char eyeLeft1[] PROGMEM  = {
-0xe0, 0xf8, 0xfc, 0x7e, 0x1e, 0x1f, 0xf, 0xf, 0xf, 0x3f, 0x3f, 0xfe, 0xfe, 0xfc, 0xf8, 0xe0, 0x7, 0x1f, 0x3f, 0x7e, 0x78, 0xf8, 0xf0, 0xf0, 0xf8, 0xf8, 0xfe, 0x7f, 0x7f, 0x3f, 0x1f, 0x7, 
-};
-
-const unsigned char eye00[] PROGMEM  = {
-0xe0, 0xf8, 0xfc, 0xfe, 0x7e, 0x1f, 0x1f, 0xf, 0xf, 0x3f, 0x3f, 0x7e, 0xfe, 0xfc, 0xf8, 0xe0, 0x7, 0x1f, 0x3f, 0x7f, 0x7e, 0xf8, 0xf8, 0xf0, 0xf0, 0xf8, 0xf8, 0x7e, 0x7f, 0x3f, 0x1f, 0x7, 
-};
-
-const unsigned char eyeRight1[] PROGMEM  = {
-0xe0, 0xf8, 0xfc, 0xfe, 0xfe, 0xff, 0x7f, 0x1f, 0x1f, 0x3f, 0x3f, 0x1e, 0x1e, 0x7c, 0xf8, 0xe0, 0x7, 0x1f, 0x3f, 0x7f, 0x7f, 0xff, 0xfe, 0xf8, 0xf8, 0xf0, 0xf0, 0x78, 0x78, 0x3e, 0x1f, 0x7, 
-};
-
-const unsigned char eyeRight2[] PROGMEM  = {
-0xe0, 0xf8, 0xfc, 0xfe, 0xfe, 0xff, 0xff, 0x7f, 0x1f, 0x3f, 0x3f, 0x1e, 0x1e, 0x1c, 0x78, 0xe0, 0x7, 0x1f, 0x3f, 0x7f, 0x7f, 0xff, 0xff, 0xfe, 0xf8, 0xf8, 0xf0, 0x70, 0x78, 0x38, 0x1e, 0x7, 
 };
 
 enum GameStatus {
@@ -40,12 +16,26 @@ enum GameStatus {
 };
 
 enum Stance {
-  CenterMiddle,
-  Left1,
   Left2,
+  Left1,
+  CenterMiddle,
   Right1,
-  Right2
+  Right2,
+  Big
 };
+
+/*
+enum Stance {
+  eye_00,
+  eye_left_1,
+  eye_left_2,
+  eye_right_1,
+  eye_right_2
+};
+*/
+
+const byte *eyeball_images[] = { eye_left_2, eye_left_1, eye_00, eye_right_1, eye_right_2, eye_big };
+const byte *eyeball_masks[] = { eye_mask, eye_mask, eye_mask, eye_mask, eye_mask };
 
 struct Eyeball {
   int x;
@@ -56,8 +46,8 @@ struct Eyeball {
 };
 
 int randomnumber;
-int spriteX = 1;
-int spriteY = 1;
+int spriteX = 10;
+int spriteY = 10;
 int xPos = 0;
 int xIncrementer = 0;
 
@@ -65,67 +55,67 @@ Eyeball eyeball = {spriteX, spriteY, Stance::CenterMiddle, eye_00, eye_mask };
 
 GameStatus gameStatus = Introduction;
 
-const byte *eyeball_images[] = { eye_left_2, eye_left_1, eye_00, eye_right_1, eye_right_2 };
-const byte *eyeball_masks[] = { eye_mask };
-
-
 void setup() {
   //initEEPROM();
   arduboy.boot();
-  arduboy.setFrameRate(75);
+  arduboy.setFrameRate(15);
   arduboy.initRandomSeed();
 }
 
 void loop() {
-  if (!(arduboy.nextFrame())) return;
+  if (!(arduboy.nextFrame()))
+  {
+    //randomnumber = 1 + rand() % 100;
+    //arduboy.clear();
+    //arduboy.setCursor(50, 50);
+    //arduboy.print(randomnumber);
+    return;
+  }
+  
   arduboy.pollButtons();
 
   switch (gameStatus) {
-
     case GameStatus::Introduction:
       introduction();
       break;
-
     case GameStatus::PlayGame:
       playGame();
       break;
-
     case GameStatus::GameOver:
       gameOver();
       break;
-      
   }
-  //randomnumber = 1 + rand() % 100;
-  //arduboy.clear();
-
-  //arduboy.setCursor(50, 50);
-  //arduboy.print(randomnumber);
-
 }
 
 void drawEyeball()
 {
-  arduboy.fillRect(spriteX, spriteY, 16, 16, BLACK);
-  switch(xPos)
-  {
-    case -2:
-      arduboy.drawBitmap(spriteX, spriteY, eyeLeft2, 16, 16, WHITE);
-      break;
-    case -1:
-      arduboy.drawBitmap(spriteX, spriteY, eyeLeft1, 16, 16, WHITE);
-      break;
-    case 0:
-      arduboy.drawBitmap(spriteX, spriteY, eye00, 16, 16, WHITE);
-      break;
-    case 1:
-      arduboy.drawBitmap(spriteX, spriteY, eyeRight1, 16, 16, WHITE);
-      break;
-    case 2:
-      arduboy.drawBitmap(spriteX, spriteY, eyeRight2, 16, 16, WHITE);
-      break;
-  }
-
+    Sprites::drawExternalMask(eyeball.x, eyeball.y - getImageHeight(eyeball.image), eyeball.image, eyeball.mask, 0, 0);//0,0 = frame frame
 }
+
+//void drawEyeball()
+//{
+//  arduboy.fillRect(spriteX, spriteY, 16, 16, BLACK);
+//  
+//  switch(xPos)
+//  {
+//    case -2:
+//      arduboy.drawBitmap(spriteX, spriteY, eyeLeft2, 16, 16, WHITE);
+//      break;
+//    case -1:
+//      arduboy.drawBitmap(spriteX, spriteY, eyeLeft1, 16, 16, WHITE);
+//      break;
+//    case 0:
+//      arduboy.drawBitmap(spriteX, spriteY, eye00, 16, 16, WHITE);
+//      break;
+//    case 1:
+//      arduboy.drawBitmap(spriteX, spriteY, eyeRight1, 16, 16, WHITE);
+//      break;
+//    case 2:
+//      arduboy.drawBitmap(spriteX, spriteY, eyeRight2, 16, 16, WHITE);
+//      break;
+//  }
+//
+//}
 
 void drawBackground()
 {
@@ -149,15 +139,23 @@ void introduction() {
   arduboy.print(F("Press A to begin"));
 
   //drawBackground();
+  //drawEyeball();
   drawEyeball();
 
   arduboy.display();
     
   if (arduboy.pressed(A_BUTTON)) {
-    
+    arduboy.clear();
     gameStatus = GameStatus::PlayGame; 
     eyeball.stance = Stance::CenterMiddle;
-  
+  }
+
+  if (arduboy.pressed(B_BUTTON)) {
+    arduboy.clear();
+    //gameStatus = GameStatus::PlayGame; 
+    eyeball.stance = Stance::Big;
+    drawBackground();
+    arduboy.display();
   }
   
 }
@@ -180,14 +178,55 @@ void gameOver() {
     eyeball.stance = Stance::CenterMiddle;
 
   }
+
+  if (arduboy.pressed(B_BUTTON)) {
+    //gameStatus = GameStatus::PlayGame; 
+    eyeball.stance = Stance::Big;
+  }
 }
 
 void initialiseGame()
 {
   arduboy.clear();
   eyeball.stance = Stance::CenterMiddle;
+  
   drawBackground();
   
+}
+
+void updateEyeball()
+{
+  //update these eyeball.x, eyeball.y - getImageHeight(eyeball.image), eyeball.image
+  eyeball.x = spriteX;
+  eyeball.y = spriteY;
+
+  //which image
+    switch(xPos)
+  {
+    case -2:
+      //arduboy.drawBitmap(spriteX, spriteY, eyeLeft2, 16, 16, WHITE);
+      eyeball.stance = Stance::Left2;
+
+      break;
+    case -1:
+      //arduboy.drawBitmap(spriteX, spriteY, eyeLeft1, 16, 16, WHITE);
+      eyeball.stance = Stance::Left1;
+      break;
+    case 0:
+      //arduboy.drawBitmap(spriteX, spriteY, eye00, 16, 16, WHITE);
+      eyeball.stance = Stance::CenterMiddle;
+      break;
+    case 1:
+      //arduboy.drawBitmap(spriteX, spriteY, eyeRight1, 16, 16, WHITE);
+      eyeball.stance = Stance::Right1;
+      break;
+    case 2:
+      //arduboy.drawBitmap(spriteX, spriteY, eyeRight2, 16, 16, WHITE);
+      eyeball.stance = Stance::Right2;
+      break;
+  }
+      eyeball.image = eyeball_images[eyeball.stance];
+      eyeball.mask = eyeball_masks[eyeball.stance];
 }
 
 void playGame()
@@ -196,7 +235,6 @@ void playGame()
   if(arduboy.pressed(LEFT_BUTTON)) {
       
       xIncrementer = xIncrementer - 1;
-      
       xPos = xPos - 1;
       if(xPos < -2)
       {
@@ -212,7 +250,6 @@ void playGame()
       {
         xPos = 2;
       }
-
       spriteX = spriteX + 1;
   }
   if(arduboy.pressed(UP_BUTTON)) {
@@ -221,11 +258,27 @@ void playGame()
   if(arduboy.pressed(DOWN_BUTTON)) {
       spriteY = spriteY + 1;
   }
-  drawBackground();
-  drawEyeball();
+    if(arduboy.pressed(DOWN_BUTTON)) {
+      spriteY = spriteY + 1;
+  }
   
+  updateEyeball();
+    if (arduboy.pressed(A_BUTTON)) {
+    arduboy.clear();
+    eyeball.stance = Stance::Big;
+  }
+  if (arduboy.pressed(B_BUTTON)) {
+    //gameStatus = GameStatus::PlayGame; 
+    eyeball.stance = Stance::Big;
+    drawBackground();
+  }
+  
+  arduboy.clear();
+  //drawBackground();
+  drawEyeball();
   arduboy.display();
 }
+
 
 
 
