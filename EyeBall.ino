@@ -35,7 +35,7 @@ enum Stance {
 */
 
 const byte *eyeball_images[] = { eye_left_2, eye_left_1, eye_00, eye_right_1, eye_right_2, eye_big };
-const byte *eyeball_masks[] = { eye_mask, eye_mask, eye_mask, eye_mask, eye_mask };
+const byte *eyeball_masks[] = { eye_mask, eye_mask, eye_mask, eye_mask, big_eye_mask };
 
 struct Eyeball {
   int x;
@@ -189,7 +189,6 @@ void initialiseGame()
 {
   arduboy.clear();
   eyeball.stance = Stance::CenterMiddle;
-  
   drawBackground();
   
 }
@@ -225,8 +224,13 @@ void updateEyeball()
       eyeball.stance = Stance::Right2;
       break;
   }
-      eyeball.image = eyeball_images[eyeball.stance];
-      eyeball.mask = eyeball_masks[eyeball.stance];
+      UpdateEyeballImageByStance();
+}
+
+void UpdateEyeballImageByStance()
+{
+  eyeball.image = eyeball_images[eyeball.stance];
+  eyeball.mask = eyeball_masks[eyeball.stance];
 }
 
 void playGame()
@@ -263,13 +267,16 @@ void playGame()
   }
   
   updateEyeball();
-    if (arduboy.pressed(A_BUTTON)) {
+  
+  if (arduboy.pressed(A_BUTTON)) {
     arduboy.clear();
     eyeball.stance = Stance::Big;
+    UpdateEyeballImageByStance();
   }
   if (arduboy.pressed(B_BUTTON)) {
     //gameStatus = GameStatus::PlayGame; 
     eyeball.stance = Stance::Big;
+    UpdateEyeballImageByStance();
     drawBackground();
   }
   
