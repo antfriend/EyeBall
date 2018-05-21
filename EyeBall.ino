@@ -58,8 +58,9 @@ GameStatus gameStatus = Introduction;
 void setup() {
   //initEEPROM();
   arduboy.boot();
-  arduboy.setFrameRate(15);
+  arduboy.setFrameRate(25);
   arduboy.initRandomSeed();
+  initialiseGame();
 }
 
 void loop() {
@@ -87,35 +88,20 @@ void loop() {
   }
 }
 
+void initialiseGame()
+{
+  spriteX = 10;
+  spriteY = 10;
+  arduboy.clear();
+  eyeball.stance = Stance::CenterMiddle;
+  drawBackground();
+}
+
 void drawEyeball()
 {
     Sprites::drawExternalMask(eyeball.x, eyeball.y - getImageHeight(eyeball.image), eyeball.image, eyeball.mask, 0, 0);//0,0 = frame frame
 }
 
-//void drawEyeball()
-//{
-//  arduboy.fillRect(spriteX, spriteY, 16, 16, BLACK);
-//  
-//  switch(xPos)
-//  {
-//    case -2:
-//      arduboy.drawBitmap(spriteX, spriteY, eyeLeft2, 16, 16, WHITE);
-//      break;
-//    case -1:
-//      arduboy.drawBitmap(spriteX, spriteY, eyeLeft1, 16, 16, WHITE);
-//      break;
-//    case 0:
-//      arduboy.drawBitmap(spriteX, spriteY, eye00, 16, 16, WHITE);
-//      break;
-//    case 1:
-//      arduboy.drawBitmap(spriteX, spriteY, eyeRight1, 16, 16, WHITE);
-//      break;
-//    case 2:
-//      arduboy.drawBitmap(spriteX, spriteY, eyeRight2, 16, 16, WHITE);
-//      break;
-//  }
-//
-//}
 
 void drawBackground()
 {
@@ -127,25 +113,33 @@ void drawBackground()
         }
     }
 }
-
+/*/////////////////////////////////////
+=== INTRODUCTION =======================>
+*//////////////////////////////////////
 void introduction() {
-
   //EEPROM.get(EEPROM_SCORE, highScore);
   arduboy.clear();
-
-  initialiseGame();
-
   arduboy.setCursor(17, 12);
-  arduboy.print(F("Press A to begin"));
+  arduboy.print(F("Dan Ray presents ..."));
 
   //drawBackground();
-  //drawEyeball();
+  eyeball.stance = Stance::Big;
+  spriteX = 1;
+  UpdateEyeballImageByStance();
+  spriteY = spriteY + 1;
+  if(spriteY > 200){
+    spriteY = 0;
+  }
+  updateEyeballXandY();
   drawEyeball();
 
+  arduboy.setCursor(17, 24);
+  arduboy.print(spriteY);
+  
   arduboy.display();
     
   if (arduboy.pressed(A_BUTTON)) {
-    arduboy.clear();
+    initialiseGame();
     gameStatus = GameStatus::PlayGame; 
     eyeball.stance = Stance::CenterMiddle;
   }
@@ -160,45 +154,9 @@ void introduction() {
   
 }
 
-void gameOver() {
 
-  arduboy.clear();
-  
-  arduboy.setCursor(40, 12);
-  arduboy.print(F("Game Over"));
-
-  
-  arduboy.display();
-    
-  if (arduboy.justPressed(A_BUTTON)) { 
-  
-    initialiseGame();
-
-    gameStatus = GameStatus::PlayGame; 
-    eyeball.stance = Stance::CenterMiddle;
-
-  }
-
-  if (arduboy.pressed(B_BUTTON)) {
-    //gameStatus = GameStatus::PlayGame; 
-    eyeball.stance = Stance::Big;
-  }
-}
-
-void initialiseGame()
+void updateStance()
 {
-  arduboy.clear();
-  eyeball.stance = Stance::CenterMiddle;
-  drawBackground();
-  
-}
-
-void updateEyeball()
-{
-  //update these eyeball.x, eyeball.y - getImageHeight(eyeball.image), eyeball.image
-  eyeball.x = spriteX;
-  eyeball.y = spriteY;
-
   //which image
     switch(xPos)
   {
@@ -224,7 +182,20 @@ void updateEyeball()
       eyeball.stance = Stance::Right2;
       break;
   }
-      UpdateEyeballImageByStance();
+}
+
+void updateEyeballXandY()
+{
+  //update these eyeball.x, eyeball.y - getImageHeight(eyeball.image), eyeball.image
+  eyeball.x = spriteX;
+  eyeball.y = spriteY;
+}
+
+void updateEyeballPlaying()
+{
+  updateEyeballXandY();
+  updateStance();
+  UpdateEyeballImageByStance();
 }
 
 void UpdateEyeballImageByStance()
@@ -233,9 +204,8 @@ void UpdateEyeballImageByStance()
   eyeball.mask = eyeball_masks[eyeball.stance];
 }
 
-void playGame()
+void checkDirectionalButtons()
 {
-  
   if(arduboy.pressed(LEFT_BUTTON)) {
       
       xIncrementer = xIncrementer - 1;
@@ -265,8 +235,12 @@ void playGame()
     if(arduboy.pressed(DOWN_BUTTON)) {
       spriteY = spriteY + 1;
   }
-  
-  updateEyeball();
+}
+
+void playGame()
+{
+  checkDirectionalButtons();
+  updateEyeballPlaying();
   
   if (arduboy.pressed(A_BUTTON)) {
     arduboy.clear();
@@ -286,7 +260,21 @@ void playGame()
   arduboy.display();
 }
 
-
+void gameOver() {
+  arduboy.clear();
+  arduboy.setCursor(40, 12);
+  arduboy.print(F("Game Over"));
+  arduboy.display();
+  if (arduboy.justPressed(A_BUTTON)) { 
+    initialiseGame();
+    gameStatus = GameStatus::PlayGame; 
+    eyeball.stance = Stance::CenterMiddle;
+  }
+  if (arduboy.pressed(B_BUTTON)) {
+    //gameStatus = GameStatus::PlayGame; 
+    eyeball.stance = Stance::Big;
+  }
+}
 
 
 
