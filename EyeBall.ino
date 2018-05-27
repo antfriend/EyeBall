@@ -35,7 +35,7 @@ enum Stance {
 */
 
 const byte *eyeball_images[] = { eye_left_2, eye_left_1, eye_00, eye_right_1, eye_right_2, eye_big };
-const byte *eyeball_masks[] = { eye_mask, eye_mask, eye_mask, eye_mask, big_eye_mask };
+const byte *eyeball_masks[] = { eye_mask, eye_mask, eye_mask, eye_mask, eye_mask, big_eye_mask };
 
 struct Eyeball {
   int x;
@@ -102,7 +102,6 @@ void drawEyeball()
     Sprites::drawExternalMask(eyeball.x, eyeball.y - getImageHeight(eyeball.image), eyeball.image, eyeball.mask, 0, 0);//0,0 = frame frame
 }
 
-
 void drawBackground()
 {
     for( int backgroundx = 0; backgroundx < 128; backgroundx = backgroundx + 8 ) {
@@ -112,46 +111,6 @@ void drawBackground()
             arduboy.drawBitmap( backgroundx, backgroundy, background, 8, 8, WHITE );
         }
     }
-}
-/*/////////////////////////////////////
-=== INTRODUCTION =======================>
-*//////////////////////////////////////
-void introduction() {
-  //EEPROM.get(EEPROM_SCORE, highScore);
-  arduboy.clear();
-  arduboy.setCursor(17, 12);
-  arduboy.print(F("Dan Ray presents ..."));
-
-  //drawBackground();
-  eyeball.stance = Stance::Big;
-  spriteX = 1;
-  UpdateEyeballImageByStance();
-  spriteY = spriteY + 1;
-  if(spriteY > 200){
-    spriteY = 0;
-  }
-  updateEyeballXandY();
-  drawEyeball();
-
-  arduboy.setCursor(17, 24);
-  arduboy.print(spriteY);
-  
-  arduboy.display();
-    
-  if (arduboy.pressed(A_BUTTON)) {
-    initialiseGame();
-    gameStatus = GameStatus::PlayGame; 
-    eyeball.stance = Stance::CenterMiddle;
-  }
-
-  if (arduboy.pressed(B_BUTTON)) {
-    arduboy.clear();
-    //gameStatus = GameStatus::PlayGame; 
-    eyeball.stance = Stance::Big;
-    drawBackground();
-    arduboy.display();
-  }
-  
 }
 
 
@@ -237,6 +196,53 @@ void checkDirectionalButtons()
   }
 }
 
+
+
+/*/////////////////////////////////////
+=== INTRODUCTION =======================>
+*//////////////////////////////////////
+void introduction() {
+  //EEPROM.get(EEPROM_SCORE, highScore);
+  arduboy.clear();
+  drawBackground();
+  spriteX = 1;
+  spriteY = spriteY + 1;
+  if(spriteY > 200){
+    spriteY = 0;
+  }
+  eyeball.stance = Stance::Big;
+  updateEyeballXandY();
+  UpdateEyeballImageByStance();
+  
+  //eyeball.mask = eyeball_masks[Stance::Big];
+  //eyeball.image = eyeball_images[Stance::Big];
+  drawEyeball();
+  //draw a rectangle
+  
+  arduboy.setCursor(17, 12);
+  arduboy.print(F("Dan Ray presents ..."));
+
+  arduboy.display();
+  
+  if (arduboy.pressed(A_BUTTON)) {
+    initialiseGame();
+    gameStatus = GameStatus::PlayGame; 
+    eyeball.stance = Stance::CenterMiddle;
+  }
+
+  if (arduboy.pressed(B_BUTTON)) {
+    arduboy.clear();
+    //gameStatus = GameStatus::PlayGame; 
+    eyeball.stance = Stance::Big;
+    drawBackground();
+    arduboy.display();
+  }
+
+}
+
+/*/////////////////////////////////////
+=== PLAY =======================>
+*//////////////////////////////////////
 void playGame()
 {
   checkDirectionalButtons();
@@ -253,13 +259,16 @@ void playGame()
     UpdateEyeballImageByStance();
     drawBackground();
   }
-  
   arduboy.clear();
-  //drawBackground();
+  drawBackground();
   drawEyeball();
   arduboy.display();
 }
 
+
+/*/////////////////////////////////////
+=== GAME OVER =======================>
+*//////////////////////////////////////
 void gameOver() {
   arduboy.clear();
   arduboy.setCursor(40, 12);
