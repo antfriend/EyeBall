@@ -24,16 +24,6 @@ enum Stance {
   Big
 };
 
-/*
-enum Stance {
-  eye_00,
-  eye_left_1,
-  eye_left_2,
-  eye_right_1,
-  eye_right_2
-};
-*/
-
 const byte *eyeball_images[] = { eye_left_2, eye_left_1, eye_00, eye_right_1, eye_right_2, eye_big };
 const byte *eyeball_masks[] = { eye_mask, eye_mask, eye_mask, eye_mask, eye_mask, big_eye_mask };
 
@@ -44,6 +34,8 @@ struct Eyeball {
   const byte *image;
   const byte *mask;
 };
+
+int _messageNumber = 0;
 
 int randomnumber;
 int spriteX = 10;
@@ -58,7 +50,7 @@ GameStatus gameStatus = Introduction;
 void setup() {
   //initEEPROM();
   arduboy.boot();
-  arduboy.setFrameRate(25);
+  arduboy.setFrameRate(30);
   arduboy.initRandomSeed();
   initialiseGame();
 }
@@ -196,6 +188,42 @@ void checkDirectionalButtons()
   }
 }
 
+void printDialogByStance(){
+  arduboy.setCursor(0, 0);
+  //arduboy.print(F("1234567890123456789012"));//22 chars
+  if (arduboy.everyXFrames(12)){
+    //update print message
+    _messageNumber = eyeball.stance;
+  }
+  switch(_messageNumber)
+  {
+    case Stance::Big:
+    //arduboy.print(F("========================"));
+      arduboy.print(F(" eye look big           "));
+      break;
+    case Stance::Left2:
+    //arduboy.print(F("========================"));
+      arduboy.print(F(" eye look left          "));
+      break;
+    case Stance::Left1:
+    //arduboy.print(F("========================"));
+      arduboy.print(F(" eye look left          "));
+      break;      
+    case Stance::CenterMiddle:
+    //arduboy.print(F("========================"));
+      arduboy.print(F(" eye just looking       "));
+      break;     
+    case Stance::Right1:
+    //arduboy.print(F("========================"));
+      arduboy.print(F(" eye look right          "));
+      break;
+    case Stance::Right2:
+    //arduboy.print(F("========================"));
+      arduboy.print(F(" eye look right          "));
+      break;             
+  }
+  
+}
 
 
 /*/////////////////////////////////////
@@ -245,11 +273,14 @@ void introduction() {
 *//////////////////////////////////////
 void playGame()
 {
+  arduboy.clear();
+  drawBackground();
+  
   checkDirectionalButtons();
   updateEyeballPlaying();
   
   if (arduboy.pressed(A_BUTTON)) {
-    arduboy.clear();
+    //arduboy.clear();
     eyeball.stance = Stance::Big;
     UpdateEyeballImageByStance();
   }
@@ -257,11 +288,14 @@ void playGame()
     //gameStatus = GameStatus::PlayGame; 
     eyeball.stance = Stance::Big;
     UpdateEyeballImageByStance();
-    drawBackground();
+    //drawBackground();
   }
-  arduboy.clear();
-  drawBackground();
+
   drawEyeball();
+
+  printDialogByStance();
+
+    
   arduboy.display();
 }
 
