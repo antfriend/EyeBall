@@ -1,5 +1,6 @@
-
-
+/* ////////////////////////* /
++++    EYEBALL            +++
+/* ////////////////////////*/
 
 #include <Arduboy2.h>
 #include "Images.h"
@@ -38,8 +39,8 @@ struct Eyeball {
 int _messageNumber = 0;
 
 int randomnumber;
-int spriteX = 10;
-int spriteY = 10;
+int spriteX = 43;
+int spriteY = 60;
 int xPos = 0;
 int xIncrementer = 0;
 
@@ -82,8 +83,8 @@ void loop() {
 
 void initialiseGame()
 {
-  spriteX = 10;
-  spriteY = 10;
+  spriteX = 60;
+  spriteY = 43;
   arduboy.clear();
   eyeball.stance = Stance::CenterMiddle;
   drawBackground();
@@ -104,7 +105,6 @@ void drawBackground()
         }
     }
 }
-
 
 void updateStance()
 {
@@ -188,7 +188,7 @@ void checkDirectionalButtons()
   }
 }
 
-void printDialogByStance(){
+void printDialogByPosition(){
   arduboy.setCursor(0, 0);
   //arduboy.print(F("1234567890123456789012"));//22 chars
   if (arduboy.everyXFrames(12)){
@@ -199,32 +199,28 @@ void printDialogByStance(){
   {
     case Stance::Big:
     //arduboy.print(F("========================"));
-      arduboy.print(F(" eye look big           "));
+      arduboy.print(F(" eye look big "));
       break;
     case Stance::Left2:
-    //arduboy.print(F("========================"));
-      arduboy.print(F(" eye look left          "));
+      arduboy.print(F(" eye look left "));
       break;
     case Stance::Left1:
-    //arduboy.print(F("========================"));
-      arduboy.print(F(" eye look left          "));
+      arduboy.print(F(" eye look left "));
       break;      
     case Stance::CenterMiddle:
-    //arduboy.print(F("========================"));
-      arduboy.print(F(" eye just looking       "));
+      arduboy.print(F(" eye just looking "));
       break;     
     case Stance::Right1:
-    //arduboy.print(F("========================"));
-      arduboy.print(F(" eye look right          "));
+      arduboy.print(F(" eye look right "));
       break;
     case Stance::Right2:
-    //arduboy.print(F("========================"));
-      arduboy.print(F(" eye look right          "));
+      arduboy.print(F(" eye look right "));
       break;             
   }
-  
+  arduboy.print(eyeball.x);
+  arduboy.print(F(" "));
+  arduboy.print(eyeball.y);
 }
-
 
 /*/////////////////////////////////////
 === INTRODUCTION =======================>
@@ -242,10 +238,7 @@ void introduction() {
   updateEyeballXandY();
   UpdateEyeballImageByStance();
   
-  //eyeball.mask = eyeball_masks[Stance::Big];
-  //eyeball.image = eyeball_images[Stance::Big];
   drawEyeball();
-  //draw a rectangle
   
   arduboy.setCursor(17, 12);
   arduboy.print(F("Dan Ray presents ..."));
@@ -265,7 +258,6 @@ void introduction() {
     drawBackground();
     arduboy.display();
   }
-
 }
 
 /*/////////////////////////////////////
@@ -293,9 +285,8 @@ void playGame()
 
   drawEyeball();
 
-  printDialogByStance();
+  printDialogByPosition();
 
-    
   arduboy.display();
 }
 
